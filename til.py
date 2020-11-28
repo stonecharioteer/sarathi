@@ -39,10 +39,10 @@ def add_query(*args):
     categories = [category.strip(",") for category in categories]
 
     is_url = (
-            value.startswith("https://") or \
-                value.startswith("http://") or \
-                    (not value.endswith(".") and "." in value and " " not in value)
-            )
+        value.startswith("https://") or
+        value.startswith("http://") or
+        (not value.endswith(".") and "." in value and " " not in value)
+    )
     if is_url:
         til_type = "url"
     else:
@@ -92,7 +92,27 @@ def add_query(*args):
 
 def find_query(*args):
     """Finds a query into the TIL json"""
-    return "Finding {}".format(args)
+    args = [arg.strip(",") for arg in args]
+    til_json = get_til()
+    relevant_tils = []
+    for til in til_json:
+        categories = til["categories"]
+        has_common_categories = any(
+            [category in categories for category in args])
+        if has_common_categories:
+            relevant_tils.append(til)
+        else:
+            for keyword in args:
+                if keyword in til["value"]:
+                    relevant_tils.append(til)
+    if len(relevant_tils) == 0:
+        return "Sorry, I couldn't find any relevant TILs."
+    else:
+        response = "Found the following: \n\n{}".format(
+            "\n".join(
+                "{}. {} \| {} @ {}.".format(ix+1, til["type"], til["value"], til["added_on"]) for ix, til in enumerate(relevant_tils)
+            ))
+        return response
 
 
 def get_til():
@@ -108,4 +128,3 @@ def write_til_json(til_json):
     til_path = os.getenv("TIL_JSON_PATH")
     with open(til_path, "w") as f:
         json.dump(til_json, f, indent=4,)
-
