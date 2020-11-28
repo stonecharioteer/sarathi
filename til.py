@@ -2,6 +2,7 @@
 
 has helper functions to manage the til library
 """
+import sys
 import json
 import datetime
 import os
@@ -36,7 +37,13 @@ def add_query(*args):
     til_json = get_til()
     value, categories = args[0], args[1:]
     categories = [category.strip(",") for category in categories]
-    if value.startswith("https://") or value.startswith("http://") or (not value.endswith(".") and "." in value and " " not in value):
+
+    is_url = (
+            value.startswith("https://") or \
+                value.startswith("http://") or \
+                    (not value.endswith(".") and "." in value and " " not in value)
+            )
+    if is_url:
         til_type = "url"
     else:
         til_type = "factoid"
@@ -56,12 +63,13 @@ def add_query(*args):
                             "Adding today's date to the `repeated_added_on` column."
                         )
                         til_json[ix] = til_entry
-                    else:
-                        message = (
-                            "Try learning something else today. "
-                            "You *just* learnt this thing."
-                        )
+                if message is None:
+                    message = (
+                        "Try learning something else today. "
+                        "You *just* learnt this thing."
+                    )
                 break
+
     if message is None:
         til_entry = dict(
             added_on=today,
@@ -76,7 +84,7 @@ def add_query(*args):
             pass
 
         til_json.append(til_entry)
-        message = "TIL added."
+        message = "TIL {} added.".format(til_type)
     til_json = sorted(til_json, key=lambda x: x["added_on"], reverse=True)
     write_til_json(til_json)
     return message
@@ -100,3 +108,4 @@ def write_til_json(til_json):
     til_path = os.getenv("TIL_JSON_PATH")
     with open(til_path, "w") as f:
         json.dump(til_json, f, indent=4,)
+
