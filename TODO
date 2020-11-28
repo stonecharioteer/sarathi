@@ -1,8 +1,27 @@
 
 Features:
-  ☐ @created(20-11-28 22:26) TIL
+  TIL:
     ☐ @created(20-11-28 22:26) Links
-      ☐ @created(20-11-28 22:34) When given a link, record into the til-links.toml file and also record the date in which it is encountered.
+      ✔ @created(20-11-28 22:34) When given a link, record into the til-links.json file and also record the date in which it is encountered. @done(20-11-29 03:00)
     ☐ @created(20-11-28 22:35) Querying
-      ☐ @created(20-11-28 22:36) Allow user to query through the file through the Bot.
-      ☐ @created(20-11-28 22:36) find
+      ✔ @created(20-11-28 22:36) Allow user to query through the file through the Bot. @done(20-11-29 03:00)
+      ☐ @created(20-11-28 22:36) @hard find items by looking through *content*
+  Blog:
+    ☐ @created(20-11-29 03:00) Automatically commit the til.json file.
+    ☐ @created(20-11-29 03:01) Automatically regenerate the til.md page and commit.
+    ☐ @created(20-11-29 03:01) Commit these two to a new temporary branch, and then send an automatic PR to master.
+  TODO:
+    ☐ @created(20-11-29 03:02) Allow creation of TODO items, so that I can add/mark-off TODOs using the Bot.
+
+  Shelfie:
+    ☐ @created(20-11-29 03:03) Allow indexing/finding/recording of books through this Bot. Use photos of ISBN?
+    ☐ @created(20-11-29 03:03) Allow fuzzy querying of books through the title/author name etc.
+    ☐ @created(20-11-29 03:03) Use a CSV to record.
+
+  Youtube-dl:
+    ☐ @created(20-11-29 03:04) autodownload playlists and videos sent to /yt
+    ☐ @created(20-11-29 03:04) Allow tagging of the playlists and videos, auto add to NAS
+
+  Torrents:
+    ☐ @created(20-11-29 03:05) Accept Magnet Links and schedule torrents.
+    ☐ @created(20-11-29 03:05) Auto move to NAS when done.
