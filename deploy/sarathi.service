@@ -1,0 +1,11 @@
+[Unit]
+# Human readable description
+Description=Sarathi - The Stonecharioteer.com Bot
+
+[Service]
+WorkingDirectory=<Absolute path to source folder goes here>
+ExecStart=<absolute path to python> -u <absolute path to sarathi.py>
+Restart=on-failures
+
+[Install]
+WantedBy=multi-user.target
