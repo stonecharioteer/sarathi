@@ -1,0 +1,8 @@
+
+Features:
+  ☐ @created(20-11-28 22:26) TIL
+    ☐ @created(20-11-28 22:26) Links
+      ☐ @created(20-11-28 22:34) When given a link, record into the til-links.toml file and also record the date in which it is encountered.
+    ☐ @created(20-11-28 22:35) Querying
+      ☐ @created(20-11-28 22:36) Allow user to query through the file through the Bot.
+      ☐ @created(20-11-28 22:36) find
