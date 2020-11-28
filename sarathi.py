@@ -16,7 +16,7 @@ bot = commands.Bot(
     command_prefix="/",
     description="A small bot to help me manage my knowledge base on my blog.",
     case_insensitive=True,
-    )
+)
 
 
 @bot.event
@@ -45,7 +45,7 @@ async def on_member_join(member):
     help=(
         "A command to help manage the today-i-learned database of my blog. "
         "Use as `/til add <input>` or, `/til find <topic>` or `/til <input>`."
-        ))
+    ))
 async def today_i_learned(ctx, *query):
     """Today I Learned"""
     response = til.process_query(*query)
@@ -58,7 +58,8 @@ async def on_error(event, *args, **kwargs):
         if event == 'on_message':
             f.write(f'Unhandled message: {args[0]}\n')
         else:
-            raise Exception("Error encountered: {} x {} x {}".format(event, args, kwargs))
+            raise Exception(
+                "Error encountered: {} x {} x {}".format(event, args, kwargs))
 
 
 def main():
