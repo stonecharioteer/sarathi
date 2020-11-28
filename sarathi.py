@@ -1,5 +1,5 @@
 """Sarathi - A discord bot to steer through the battlefield of knowledge"""
-
+import sys
 import os
 import discord
 from discord.ext import commands
@@ -23,13 +23,13 @@ bot = commands.Bot(
 async def on_ready():
     """Behaviour when ready"""
     guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
-    print(
+    sys.stdout.write(
         f'{bot.user} is connected to the following guild:\n'
-        f'{guild.name}(id: {guild.id})'
+        f'{guild.name}(id: {guild.id})\n'
     )
 
     members = '\n - '.join([member.name for member in guild.members])
-    print(f'Guild Members:\n - {members}')
+    sys.stdout.write(f'Guild Members:\n - {members}\n')
 
 
 @bot.event
@@ -58,7 +58,7 @@ async def on_error(event, *args, **kwargs):
         if event == 'on_message':
             f.write(f'Unhandled message: {args[0]}\n')
         else:
-            raise Exception(args[0])
+            raise Exception("Error encountered: {} x {} x {}".format(event, args, kwargs))
 
 
 def main():
