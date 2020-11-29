@@ -2,10 +2,17 @@
 
 has helper functions to manage the til library
 """
-import sys
-import json
 import datetime
+import json
 import os
+import pathlib
+import subprocess
+import sys
+from contextlib import contextmanager
+
+import bs4
+import urllib3
+import discord
 
 
 def process_query(*query) -> str:
@@ -81,10 +88,19 @@ def add_query(*args):
 
         if til_type == "url":
             # TODO: add title.
-            pass
-
+            title = get_url_title(url=value)
+            if title is None:
+                title = value
+                til_entry["title"] = value
+                message = "TIL {} added. URL: {}. Unable to retrieve page title.".format(
+                    til_type, value)
+            else:
+                til_entry["title"] = title
+                message = "TIL {} added. Page Title: `{}`".format(
+                    til_type, title)
+        else:
+            message = "TIL {} added.".format(til_type)
         til_json.append(til_entry)
-        message = "TIL {} added.".format(til_type)
     til_json = sorted(til_json, key=lambda x: x["added_on"], reverse=True)
     write_til_json(til_json)
     return message
@@ -108,10 +124,30 @@ def find_query(*args):
     if len(relevant_tils) == 0:
         return "Sorry, I couldn't find any relevant TILs."
     else:
-        response = "Found the following: \n\n{}".format(
-            "\n".join(
-                "{}. {} \| {} @ {}.".format(ix+1, til["type"], til["value"], til["added_on"]) for ix, til in enumerate(relevant_tils)
-            ))
+        length = len(relevant_tils)
+        if length > 1:
+            response = ["Found {} matching TILs.".format(length)]
+        else:
+            response = []
+        for til in relevant_tils:
+            type_ = til["type"]
+            value = til["value"]
+
+            date = til["added_on"]
+            if type_ == "url":
+                title = til.get("title", "No Page Title")
+                item_embed = discord.Embed(
+                    title="URL TIL @ {}".format(date),
+                    description=title,
+                    url=value
+                )
+            else:
+                item_embed = discord.Embed(
+                    title="Factoid TIL @ {}".format(date),
+                    description=value
+                )
+            response.append(item_embed)
+
         return response
 
 
@@ -124,7 +160,79 @@ def get_til():
 
 
 def write_til_json(til_json):
-    """Writes to the TIL JSON"""
-    til_path = os.getenv("TIL_JSON_PATH")
+    """Writes to the TIL JSON and pushes the file to github."""
+    til_path = pathlib.Path(os.getenv("TIL_JSON_PATH"))
     with open(til_path, "w") as f:
         json.dump(til_json, f, indent=4,)
+
+    blog_path = pathlib.Path(os.getenv("BLOG_PATH"))
+
+    if not til_path.is_relative_to(blog_path):
+        raise EnvironmentError((
+            "The TIL file {} needs to be "
+            "in the blog folder {}."
+        ).format(
+            til_path, blog_path))
+    with cwd(blog_path):
+        commit_message = "TIL updated by sarathi-bot."
+        output = subprocess.Popen(
+            ["git", "commit", "-m", commit_message, "assets/til.json"])
+        stdout, stderr = output.communicate()
+        output = subprocess.Popen(["git", "push"])
+        stdout, stderr = output.communicate()
+    return output.returncode == 0
+
+
+@contextmanager
+def cwd(path):
+    """Context manager that allows switching to a directory and changing back."""
+    old_path = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(old_path)
+
+
+def get_url_title(url):
+    """Returns the title of the page"""
+    http = urllib3.PoolManager()
+    try:
+        r = http.request("GET", url)
+        text = r.data.decode("utf-8", "ignore")
+    except (
+            UnicodeDecodeError,
+            urllib3.exceptions.MaxRetryError,
+            urllib3.exceptions.LocationValueError):
+        sys.stderr.write(f"Getting title for `{url}` FAILED.")
+        return None
+    else:
+        soup = bs4.BeautifulSoup(text, "lxml")
+        if soup.title is None:
+            sys.stderr.write(f"`{url}` has no title.")
+            return None
+        return soup.title.string
+
+
+def fix_urls():
+    """Fix URL entries so that they have a title"""
+    import progressbar
+    til_json = get_til()
+    for ix, til_entry in progressbar.progressbar(enumerate(til_json), max_value=len(til_json)):
+        til_type = til_entry["type"]
+        if til_type == "url":
+            if (title := til_entry.get("title")) is None:
+                url = til_entry["value"]
+                title = get_url_title(url)
+                if title is not None:
+                    til_entry["title"] = title
+                    til_json[ix] = til_entry
+                else:
+                    sys.stderr.write(f"Failed getting title for `{url}`")
+    write_til_json(til_json)
+
+
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv()
+    fix_urls()

@@ -48,8 +48,17 @@ async def on_member_join(member):
     ))
 async def today_i_learned(ctx, *query):
     """Today I Learned"""
+    await ctx.send("Processing...")
+
     response = til.process_query(*query)
-    await ctx.send(response)
+    if isinstance(response, str):
+        await ctx.send(response)
+    elif isinstance(response, list):
+        for item in response:
+            if isinstance(item, discord.Embed):
+                await ctx.send(embed=item)
+            else:
+                await ctx.send(item)
 
 
 @bot.event
