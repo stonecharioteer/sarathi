@@ -103,6 +103,7 @@ def add_query(*args):
         til_json.append(til_entry)
     til_json = sorted(til_json, key=lambda x: x["added_on"], reverse=True)
     write_til_json(til_json)
+    generate_til_page()
     return message
 
 
@@ -194,6 +195,48 @@ def cwd(path):
         os.chdir(old_path)
 
 
+def generate_til_page():
+    """Generates the TIL page"""
+    from jinja2 import Template
+    template_file = os.getenv("TIL_JINJA_TEMPLATE_PATH")
+    with open(template_file) as f:
+        template_str = f.read()
+
+    template = Template(template_str)
+    til_json = get_til()
+    dates = list(sorted(set(x["added_on"] for x in til_json), reverse=True))
+    til_json_grouped = {}
+    for date in dates:
+        til_json_grouped[date] = sorted(
+            [x for x in til_json if x["added_on"] == date],
+            key=lambda y: y.get(
+                "title",
+                "{} {}".format(y["type"], y["value"]))
+        )
+
+    til_file = pathlib.Path(os.getenv("TIL_FILE_PATH"))
+    with open(til_file, "w") as f:
+        template_rendered = template.render(
+            dates=dates,
+            til_json=til_json_grouped)
+        f.write(template_rendered)
+    blog_path = pathlib.Path(os.getenv("BLOG_PATH"))
+    if not til_file.is_relative_to(blog_path):
+        raise EnvironmentError((
+            "The TIL file {} needs to be "
+            "in the blog folder {}."
+        ).format(
+            til_file, blog_path))
+    with cwd(blog_path):
+        commit_message = "TIL page updated by sarathi-bot."
+        output = subprocess.Popen(
+            ["git", "commit", "-m", commit_message, "pages/til.md"])
+        stdout, stderr = output.communicate()
+        output = subprocess.Popen(["git", "push"])
+        stdout, stderr = output.communicate()
+    return output.returncode == 0
+
+
 def get_url_title(url):
     """Returns the title of the page"""
     http = urllib3.PoolManager()
@@ -236,3 +279,4 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
     fix_urls()
+    generate_til_page()
