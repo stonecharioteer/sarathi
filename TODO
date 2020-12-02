@@ -6,10 +6,18 @@ Features:
     ☐ @created(20-11-28 22:35) Querying
       ✔ @created(20-11-28 22:36) Allow user to query through the file through the Bot. @done(20-11-29 03:00)
       ☐ @created(20-11-28 22:36) @hard find items by looking through *content*
+    ☐ @created(20-12-02 16:28) Argument Parsing
+      ✔ @created(20-12-02 16:00) Update Help text for `/til` command @done(20-12-02 16:29)
+      ☐ @created(20-12-02 16:28) Implement CLI-style command line parsing.
+      ☐ @created(20-12-02 16:29) Update `til.add_query` and `til.find_query` to use arguments and keyword arguments.
+      ☐ @created(20-12-02 16:30) Allow users to provide a custom message for TIL URLs
+      ☐ @created(20-12-02 16:30) Read attachments and introduce a new TIL type.
   Blog:
-    ☐ @created(20-11-29 03:00) Automatically commit the til.json file.
-    ☐ @created(20-11-29 03:01) Automatically regenerate the til.md page and commit.
-    ☐ @created(20-11-29 03:01) Commit these two to a new temporary branch, and then send an automatic PR to master.
+    ✔ @created(20-11-29 03:00) Automatically commit the til.json file. @done(20-12-02 16:28)
+    ✔ @created(20-11-29 03:01) Automatically regenerate the til.md page and commit. @done(20-12-02 16:28)
+    ☐ @created(20-12-02 16:31) Automatically add attachments.
+    ☐ @created(20-12-02 16:31) Use Attachment type TILs. Show download icon.
+    ✘ @created(20-11-29 03:01) Commit these two to a new temporary branch, and then send an automatic PR to master. @cancelled(20-12-02 16:28)
   TODO:
     ☐ @created(20-11-29 03:02) Allow creation of TODO items, so that I can add/mark-off TODOs using the Bot.
 
