@@ -1,8 +1,10 @@
 """Sarathi - A discord bot to steer through the battlefield of knowledge"""
-import sys
 import os
+import sys
+
 import discord
 from discord.ext import commands
+from discord.ext.commands import is_owner
 from dotenv import load_dotenv
 
 import til
@@ -42,15 +44,13 @@ async def on_member_join(member):
 
 @bot.command(
     name="til",
-    help=(
-        "A command to help manage the today-i-learned database of my blog. "
-        "Use as `/til add <input>` or, `/til find <topic>` or `/til <input>`."
-    ))
+    help=til.help_text)
+@is_owner()
 async def today_i_learned(ctx, *query):
     """Today I Learned"""
     await ctx.send("Processing...")
 
-    response = til.process_query(*query)
+    response = til.process_query(*query, message=ctx.message)
     if isinstance(response, str):
         await ctx.send(response)
     elif isinstance(response, list):
