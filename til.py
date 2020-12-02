@@ -8,32 +8,89 @@ import os
 import pathlib
 import subprocess
 import sys
+import textwrap
 from contextlib import contextmanager
 
 import bs4
-import urllib3
 import discord
+import urllib3
+
+help_text = textwrap.dedent(
+    f"""A command to help manage the today-i-learned database of my blog.
+        usage: til [subcommand] ... [-m message] [-c categories] [value]
+
+        These are the common `til` commands used in various situations:
+
+        {"add".ljust(15, " ")}: Add a new TIL entry
+        {"find".ljust(15, " ")}: Find a previous entry.
+
+        Options and arguments:\n
+
+        {"[subcommand]".ljust(15, " ")}: Required.
+                        Choose from `add` or `find`.
+        {"-m".ljust(15, " ")}: TIL message text.
+                        Ignored for factoids.
+                        Default: Page title for URL,
+                        file name for attachments.
+        {"-c".ljust(15, " ")}: Categories/tags for the TIL entry.
+                        Accepts multiple.
+        {"value".ljust(15, " ")}: Value for the TIL.
+                        Required unless a file is attached.
+                        Accepts URL, quoted string or file.
+                        File read from attachment.
+        """
+)
 
 
-def process_query(*query) -> str:
+def process_query(*query, **kwargs) -> str:
     """Processes a TIL query such as
     find <topic>
     add <link>
     add <factoid>
     """
-    if len(query) <= 1:
-        return "You need to give me something to do. If you want to *find* a TIL you've previously added, use `/til find <topic>`, without the `<>`."
+    message = kwargs.get("message")
+
+    if (len(query) == 0 or query[1].lower() == "help" or query[1].lower() == "--help" or query[1].lower() == "-h"):
+        return help_text
     else:
         command, args = query[0].lower(), query[1:]
+        file_attachments = message.attachment
+        command_options = {
+            "message": None,
+            "value": None,
+            "categories": [],
+        }
+        current_option = None
+        for item in args:
+            if item.lower().startswith("-"):
+                # this is a possible option
+                option = item.lower()
+                if option in ["-m", "--message"]:
+                    current_option = "message"
+                elif option in ["-c", "--category"]:
+                    current_option = "category"
+            else:
+                if current_option is None:
+                    # process this
+                else:
+                    if current_option == "message":
+                        # prevent multiple options.
+                        command_options["message"] = item
+                    elif current_option == "category":
+                        command_options["category"].append(item)
+
+                    # finally
+                    current_option = None
+
         if command == "find":
             return find_query(*args)
         elif command == "add":
             return add_query(*args)
         else:
-            return f"Unrecognized command {command}. I don't know how to do that yet."
+            return f"Unrecognized command {command}. Here is the help text:\n\n{}.".format(help_text)
 
 
-def add_query(*args):
+def add_query(*args, **kwargs):
     """Adds a query into the TIL json
     Accepted formats:
 
@@ -41,6 +98,7 @@ def add_query(*args):
     /til add <factoid> <space separated topics>
     /til add book <link> <space separated topics>
     """
+    message = kwargs.get("message")
     til_json = get_til()
     value, categories = args[0], args[1:]
     categories = [category.strip(",") for category in categories]
@@ -107,8 +165,9 @@ def add_query(*args):
     return message
 
 
-def find_query(*args):
+def find_query(*args, **kwargs):
     """Finds a query into the TIL json"""
+    message = kwargs.get("message")
     args = [arg.strip(",") for arg in args]
     til_json = get_til()
     relevant_tils = []
