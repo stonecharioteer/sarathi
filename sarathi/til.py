@@ -2,6 +2,9 @@
 
 has helper functions to manage the til library
 """
+
+import argparse
+
 import datetime
 import json
 import os
@@ -48,6 +51,11 @@ def process_query(*query, **kwargs) -> str:
     add <link>
     add <factoid>
     """
+
+    argument_parser = argparse.ArgumentParser()
+
+    argument_parser.add_argument("--message", "-m", help="Message")
+
     message = kwargs.get("message")
 
     if (len(query) == 0 or query[1].lower() == "help" or query[1].lower() == "--help" or query[1].lower() == "-h"):
@@ -72,6 +80,7 @@ def process_query(*query, **kwargs) -> str:
             else:
                 if current_option is None:
                     # process this
+                    pass
                 else:
                     if current_option == "message":
                         # prevent multiple options.
@@ -87,16 +96,16 @@ def process_query(*query, **kwargs) -> str:
         elif command == "add":
             return add_query(*args)
         else:
-            return f"Unrecognized command {command}. Here is the help text:\n\n{}.".format(help_text)
+            return f"Unrecognized command {command}. Here is the help text:\n\n{help_text}."
 
 
 def add_query(*args, **kwargs):
     """Adds a query into the TIL json
     Accepted formats:
 
-    /til add <http-link> <space separated topics>
-    /til add <factoid> <space separated topics>
-    /til add book <link> <space separated topics>
+    /til add < http-link > <space separated topics >
+    /til add < factoid > <space separated topics >
+    /til add book < link > <space separated topics >
     """
     message = kwargs.get("message")
     til_json = get_til()
