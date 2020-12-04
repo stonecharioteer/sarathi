@@ -1,5 +1,7 @@
 
 Features:
+  Cleanup:
+    ☐ @created(20-12-05 01:09) Use argparse to parse arguments from each command.
   TIL:
     ☐ @created(20-11-28 22:26) Links
       ✔ @created(20-11-28 22:34) When given a link, record into the til-links.json file and also record the date in which it is encountered. @done(20-11-29 03:00)
