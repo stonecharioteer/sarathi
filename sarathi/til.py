@@ -170,22 +170,58 @@ def add_query(arguments, **kwargs):
     return message
 
 
-def find_query(*args, **kwargs):
+def find_query(arguments, **kwargs):
     """Finds a query into the TIL json"""
-    message = kwargs.get("message")
-    args = [arg.strip(",") for arg in args]
+    categories = arguments.category or []
+    domains = arguments.domains or []
+    keywords = arguments.keywords
+    limit = arguments.limit or 5
+
+    if len(categories) == 0 and len(domains) == 0 and len(keywords) == 0:
+        raise InvalidTILError(
+            "Cannot find anything for such a filter. "
+            "Ensure that the user doesn't reach this point.")
+
     til_json = get_til()
     relevant_tils = []
     for til in til_json:
-        categories = til["categories"]
-        has_common_categories = any(
-            [category in categories for category in args])
-        if has_common_categories:
-            relevant_tils.append(til)
+        relevant = False
+
+        if len(categories) > 0:
+            til_categories = til["categories"]
+            # check if the categories match.
+            has_matching_category = any(
+                [category in til_categories for category in categories])
         else:
-            for keyword in args:
-                if keyword in til["value"]:
-                    relevant_tils.append(til)
+            has_matching_category = None
+
+        links = til.get("links", [])
+        if len(domains) > 0:
+            # filter for domains.
+            has_matching_domain = any(
+                [domain in link["url"] for link in links])
+        else:
+            has_matching_domain = None
+
+        til_message = til.get("message", "")
+        has_matching_keyword = any([
+            # check the message and the title of every link therein.
+            (
+                # keyword is in the message for each keyword in keywords
+                keyword.lower() in til_message.lower()
+            ) or (
+                # keyword is in one of the link titles for each link in links for each keyword in keywords
+                keyword in link["title"] for link in links
+            )
+            for keyword in keywords
+        ])
+
+        relevant = has_matching_keyword or has_matching_domain or has_matching_category:
+        if relevant:
+            relevant_tils.append(til)
+    # TODO: Limit to required number of TILs and return the reponse.
+    # FIXME: How do I account for multiple links in a discord response.
+
     if len(relevant_tils) == 0:
         return "Sorry, I couldn't find any relevant TILs."
     else:
