@@ -4,35 +4,38 @@ Used to parse the arguments from the discord message.
 import argparse
 
 
-class Parser(argparse.ArgumentParser):
+class ArgParseError(Exception):
+    pass
+
+
+class CustomArgumentParser(argparse.ArgumentParser):
     def exit(self, status=0, message=None):
         if status:
-            raise argparse.ArgumentException(message)
+            raise ArgParseError(message)
 
     def error(self, message):
-        raise argparse.ArgumentParser(message)
+        raise ArgParseError(message)
 
 
-sarathi_parser = Parser(
+sarathi_parser = CustomArgumentParser(
     prog="sarathi", description="This is some description text.",
-    exit_on_error=False)
+)
 
 sarathi_subparsers = sarathi_parser.add_subparsers(
     required=True,
     dest="command",
-    parser_class=Parser,
     help="command help goes here")
 
 til_parser = sarathi_subparsers.add_parser(
-    "til", exit_on_error=False, help="TIL command")
+    "til",  help="TIL command")
 
 til_subparsers = til_parser.add_subparsers(
     dest="subcommand", required=True,
-    help="TIL sub-commands", parser_class=Parser)
+    help="TIL sub-commands",
+)
 
 til_add_parser = til_subparsers.add_parser(
     "add",
-    exit_on_error=False,
     help="add command")
 
 til_add_parser.add_argument("-m", "--message", dest="message",
@@ -43,7 +46,7 @@ til_add_parser.add_argument(
     "-u", "--url", action="append", type=str, help="Links related to this TIL")
 
 til_find_parser = til_subparsers.add_parser(
-    "find", exit_on_error=False, help="add command")
+    "find",  help="add command")
 
 til_find_parser.add_argument(
     "-c", "--category", help="Category in which to find this TIL")

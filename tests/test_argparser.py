@@ -20,7 +20,7 @@ def test_til_parser_find_exists():
 
 def test_til_parser_add_simple():
     """Tests the TIL Parser"""
-    til_string = ["til", "add", "-u", "https://google.com"]
+    til_string = ["til", "add", "-u", "https://localhost"]
     namespace = sarathi_parser.parse_args(til_string)
     assert namespace.command == "til", "The `til` command doesn't exist!"
     assert namespace.subcommand == "add", "The `til add` subcommand doesn't exist."
@@ -85,7 +85,6 @@ def test_til_parser_add_multicategory_multiurl():
 def test_parse_invalid_command(cmd):
     """Tests what happens when the arg parser
     gets an invalid command"""
-    print(f"{cmd=}")
 
     with pytest.raises(ArgParseError):
         _ = sarathi_parser.parse_args(cmd)

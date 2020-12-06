@@ -1,14 +1,13 @@
 """Sarathi - A discord bot to steer through the battlefield of knowledge"""
 import os
 import sys
-import argparse
 import discord
 from discord.ext import commands
 from discord.ext.commands import is_owner
 from dotenv import load_dotenv
 
 from sarathi import til
-from sarathi.parser import sarathi_parser
+from sarathi.parser import ArgParseError, sarathi_parser
 
 load_dotenv()
 
@@ -53,12 +52,12 @@ async def today_i_learned(ctx, *query):
     command = ["til"]+list(query)
     try:
         arguments = sarathi_parser.parse_args(command)
-    except argparse.ArgumentError:
+    except ArgParseError:
         await ctx.send(
             "Invalid Input. "
             "Use `/help til` to learn how to use this bot.")
     except Exception as e:
-        raise Exception("`{}` failed unexpectedly.") from e
+        raise Exception("`{}` failed unexpectedly.".format(e)) from e
     else:
         response = til.process_query(arguments, message=ctx.message)
         if isinstance(response, str):

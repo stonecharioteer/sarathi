@@ -4,7 +4,6 @@ has helper functions to manage the til library
 """
 
 import argparse
-
 import datetime
 import json
 import os
@@ -17,6 +16,8 @@ from contextlib import contextmanager
 import bs4
 import discord
 import urllib3
+
+from sarathi.exceptions import ServerError, InvalidTILError
 
 help_text = textwrap.dedent(
     f"""A command to help manage the today-i-learned database of my blog.
@@ -45,129 +46,124 @@ help_text = textwrap.dedent(
 )
 
 
-def process_query(*query, **kwargs) -> str:
-    """Processes a TIL query such as
-    find <topic>
-    add <link>
-    add <factoid>
-    """
-
-    argument_parser = argparse.ArgumentParser()
-
-    argument_parser.add_argument("--message", "-m", help="Message")
-
-    message = kwargs.get("message")
-
-    if (len(query) == 0 or query[1].lower() == "help" or query[1].lower() == "--help" or query[1].lower() == "-h"):
-        return help_text
+def process_query(arguments, **kwargs) -> str:
+    """Processes a til query"""
+    # arguments is from argparse.
+    subcommand = arguments.subcommand
+    if subcommand == "find":
+        return find_query(arguments, **kwargs)
+    elif subcommand == "add":
+        return add_query(arguments, **kwargs)
     else:
-        command, args = query[0].lower(), query[1:]
-        file_attachments = message.attachment
-        command_options = {
-            "message": None,
-            "value": None,
-            "categories": [],
-        }
-        current_option = None
-        for item in args:
-            if item.lower().startswith("-"):
-                # this is a possible option
-                option = item.lower()
-                if option in ["-m", "--message"]:
-                    current_option = "message"
-                elif option in ["-c", "--category"]:
-                    current_option = "category"
-            else:
-                if current_option is None:
-                    # process this
-                    pass
-                else:
-                    if current_option == "message":
-                        # prevent multiple options.
-                        command_options["message"] = item
-                    elif current_option == "category":
-                        command_options["category"].append(item)
-
-                    # finally
-                    current_option = None
-
-        if command == "find":
-            return find_query(*args)
-        elif command == "add":
-            return add_query(*args)
-        else:
-            return f"Unrecognized command {command}. Here is the help text:\n\n{help_text}."
+        raise ServerError(
+            f"`{subcommand}` is an unaccounted subcommand to `til`. "
+            "The `sarathi_parser` should have caught this error.")
 
 
-def add_query(*args, **kwargs):
+def add_query(arguments, **kwargs):
     """Adds a query into the TIL json
-    Accepted formats:
 
-    /til add < http-link > <space separated topics >
-    /til add < factoid > <space separated topics >
-    /til add book < link > <space separated topics >
+    Each 'entry' is:
+    {
+        "message": "Some useful message",
+        "categories": [
+            "category-1", "category-2"
+        ],
+        "links": [
+            {
+                "url": "https://localhost-1",
+                "title": "Page Title 1",
+            },
+            {
+                "url": "https://localhost-2",
+                "title": "Page Title 2",
+            },
+        ],
+
+    }
     """
-    message = kwargs.get("message")
-    til_json = get_til()
-    value, categories = args[0], args[1:]
-    categories = [category.strip(",") for category in categories]
+    raw_message = kwargs.get("message")
+    # TODO: Get attachment from here and use it.
 
-    is_url = (
-        value.startswith("https://") or
-        value.startswith("http://") or
-        (not value.endswith(".") and "." in value and " " not in value)
-    )
-    if is_url:
-        til_type = "url"
-    else:
-        til_type = "factoid"
-    message = None
+    categories = arguments.category or []
+    urls = arguments.url or []
+    message = arguments.message
+    if message is None and len(urls) == 0:
+        # TODO: This needs to be accounted for in the argparsing itself.
+        raise InvalidTILError(
+            f"You need to provide a message or at least 1 URL for a TIL entry.")
+
+    til_json = get_til()
     today = datetime.date.today().strftime("%Y-%m-%d")
+
+    # check if this TIL is already in the corpus.
+    response = None
     for ix, til_entry in enumerate(til_json):
         # check if this TIL was already reported.
         # if it was, then just append today's date to the repeated_added_on
-        til_entry_type = til_entry["type"]
-        if til_entry_type == til_type:
-            if til_entry["value"] == value:
-                if til_entry["added_on"] != today:
-                    if today not in til_entry["repeated_added_on"]:
-                        til_entry["repeated_added_on"].append(today)
-                        message = (
-                            f"This TIL was already recorded on {til_entry['added_on']}. "
-                            "Adding today's date to the `repeated_added_on` column."
-                        )
-                        til_json[ix] = til_entry
-                if message is None:
-                    message = (
+        til_message = til_entry["message"]
+        til_links = til_entry["links"]
+        til_categories = til_entry["categories"]
+        til_added_on = til_entry["added_on"]
+        # check if the message string matches. Case insensitive.
+        message_matches = isinstance(message, str) and isinstance(
+            til_message, str) and til_message.lower() == message.lower()
+
+        # check if one or more of the URLs in the given list were in some other TIL.
+        matching_url = 0
+        til_urls = [link["url"].lower() for link in til_links]
+
+        for url in urls:
+            if url.lower() in til_urls:
+                matching_url += 1
+
+        if matching_url:
+            # TODO: How do I handle this?
+            raise NotImplementedError(
+                f"{matching_url} URL(s) match an entry from {til_added_on}."
+                "While that has been detected, I am not yet sure what is "
+                "the right thing to do here. This is a TODO item that "
+                "I should tackle later.")
+
+        if message_matches or matching_url:
+            # url or message matches.
+            if til_added_on != today:
+                if today not in til_entry["repeated_added_on"]:
+                    til_entry["repeated_added_on"].append(today)
+                    # update categories silently if required.
+                    for category in categories:
+                        if category not in til_categories:
+                            til_entry["categories"].append(category)
+                    response = (
+                        f"This TIL was already recorded on {til_added_on}. "
+                        "Adding today's date to the `repeated_added_on` column."
+                    )
+                    til_json[ix] = til_entry
+                if response is None:
+                    response = (
                         "Try learning something else today. "
                         "You *just* learnt this thing."
                     )
                 break
 
-    if message is None:
+    if response is None:
         til_entry = dict(
             added_on=today,
             repeated_added_on=[],
-            categories=sorted(categories),
-            type=til_type,
-            value=value
+            categories=sorted(set(categories)),
         )
 
-        if til_type == "url":
-            # TODO: add title.
-            title = get_url_title(url=value)
-            if title is None:
-                title = value
-                til_entry["title"] = value
-                message = "TIL {} added. URL: {}. Unable to retrieve page title.".format(
-                    til_type, value)
-            else:
-                til_entry["title"] = title
-                message = "TIL {} added. Page Title: `{}`".format(
-                    til_type, title)
+        links = [dict(title=get_url_title, url=url) for url in urls]
+        if message is not None:
+            til_entry["message"] = message
+
+        if links:
+            til_entry["links"] = links
+            response = "TIL Added. {} links included.".format(len(links))
         else:
-            message = "TIL {} added.".format(til_type)
+            response = "TIL Added."
         til_json.append(til_entry)
+
     til_json = sorted(til_json, key=lambda x: x["added_on"], reverse=True)
     write_til_json(til_json)
     generate_til_page()
