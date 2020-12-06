@@ -1,6 +1,8 @@
 
 Features:
   Cleanup:
+    ☐ @created(20-12-06 15:36) Print detailed help on invalid output.
+    ☐ @created(20-12-06 15:36) Use argparse's generated help instead of hardcoded help.
     ☐ @created(20-12-05 01:09) Use argparse to parse arguments from each command.
   TIL:
     ☐ @created(20-11-28 22:26) Links
