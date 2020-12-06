@@ -1,6 +1,5 @@
 import pytest
-import argparse
-from sarathi.commands import sarathi_parser
+from sarathi.parser import sarathi_parser, ArgParseError
 
 
 def test_til_parser_add_exists():
@@ -88,5 +87,5 @@ def test_parse_invalid_command(cmd):
     gets an invalid command"""
     print(f"{cmd=}")
 
-    with pytest.raises(argparse.ArgumentError):
+    with pytest.raises(ArgParseError):
         _ = sarathi_parser.parse_args(cmd)
