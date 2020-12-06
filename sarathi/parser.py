@@ -9,8 +9,8 @@ class Parser(argparse.ArgumentParser):
         if status:
             raise argparse.ArgumentException(message)
 
-    def error(self, *args, **kwargs):
-        raise argparse.ArgumentParser("Error: {}, {}".format(args, kwargs))
+    def error(self, message):
+        raise argparse.ArgumentParser(message)
 
 
 sarathi_parser = Parser(
