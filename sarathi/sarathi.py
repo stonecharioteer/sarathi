@@ -1,13 +1,14 @@
 """Sarathi - A discord bot to steer through the battlefield of knowledge"""
 import os
 import sys
-
+import argparse
 import discord
 from discord.ext import commands
 from discord.ext.commands import is_owner
 from dotenv import load_dotenv
 
-import til
+from sarathi import til
+from sarathi.parser import sarathi_parser
 
 load_dotenv()
 
@@ -49,16 +50,25 @@ async def on_member_join(member):
 async def today_i_learned(ctx, *query):
     """Today I Learned"""
     await ctx.send("Processing...")
-
-    response = til.process_query(*query, message=ctx.message)
-    if isinstance(response, str):
-        await ctx.send(response)
-    elif isinstance(response, list):
-        for item in response:
-            if isinstance(item, discord.Embed):
-                await ctx.send(embed=item)
-            else:
-                await ctx.send(item)
+    command = ["til"]+list(query)
+    try:
+        arguments = sarathi_parser.parse_args(command)
+    except argparse.ArgumentError:
+        await ctx.send(
+            "Invalid Input. "
+            "Use `/help til` to learn how to use this bot.")
+    except Exception as e:
+        raise Exception("`{}` failed unexpectedly.") from e
+    else:
+        response = til.process_query(arguments, message=ctx.message)
+        if isinstance(response, str):
+            await ctx.send(response)
+        elif isinstance(response, list):
+            for item in response:
+                if isinstance(item, discord.Embed):
+                    await ctx.send(embed=item)
+                else:
+                    await ctx.send(item)
 
 
 @bot.event
