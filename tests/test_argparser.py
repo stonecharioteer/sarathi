@@ -70,10 +70,10 @@ def test_til_parser_add_multicategory_multiurl():
             ["til", "add"]
         ),
         (
-            ["til", "find"]
+            ["til", "add", "invalid"]
         ),
         (
-            ["til", "add", "invalid"]
+            ["til", "find"]
         ),
         (
             [
