@@ -53,6 +53,10 @@ systemctl --user enable sarathi
 systemctl --user start sarathi
 ```
 
+# Development
+
+This project uses `python=3.9` and `pytest` for development.
+
 # References:
 
 1. [Real Python - Creating a Discord Bot](https://realpython.com/how-to-make-a-discord-bot-python/#how-to-make-a-discord-bot-in-python)
