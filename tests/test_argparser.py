@@ -1,3 +1,5 @@
+import pytest
+import argparse
 from sarathi.commands import sarathi_parser
 
 
@@ -37,7 +39,6 @@ def test_til_parser_add_multicategory_multiurl():
     namespace = sarathi_parser.parse_args(til_string)
     assert namespace.command == "til", "`til` command was not invoked."
     assert namespace.subcommand == "add", "`til add` command was not invoked."
-
     assert namespace.message == til_string[3], "Message was not stored in `message`."
     assert isinstance(namespace.category,
                       list), "Categories was not stored as a list."
@@ -48,3 +49,10 @@ def test_til_parser_add_multicategory_multiurl():
         namespace.url, list), "The urls are not stored as a list."
     assert set(namespace.url) - set((til_string[9], til_string[11])) == set(
     ), "Both URLs are not stored in the `url` property"
+
+
+def test_parse_invalid_command():
+    """Tests what happens when the arg parser gets an invalid command"""
+    command_string = ["invalid-command"]
+    with pytest.raises(argparse.ArgumentError):
+        _ = sarathi_parser.parse_args(command_string)
