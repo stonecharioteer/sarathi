@@ -51,8 +51,38 @@ def test_til_parser_add_multicategory_multiurl():
     ), "Both URLs are not stored in the `url` property"
 
 
-def test_parse_invalid_command():
+@pytest.mark.parametrize(
+    "cmd",
+    [
+        (
+            ["invalid-subcommand"]
+        ),
+        (
+            ["til", "invalid"]
+        ),
+        (
+            ["til", "add"]
+        ),
+        (
+            ["til", "find"]
+        ),
+        (
+            ["til", "add", "invalid"]
+        ),
+        (
+            [
+                "til", "find", "invalid"
+            ]
+        ),
+        (
+            [
+                "til", "add", "-u", "https://localhost"
+            ]
+        )
+    ]
+)
+def test_parse_invalid_command(cmd):
     """Tests what happens when the arg parser gets an invalid command"""
-    command_string = ["invalid-command"]
+    print(f"{cmd=}")
     with pytest.raises(argparse.ArgumentError):
-        _ = sarathi_parser.parse_args(command_string)
+        _ = sarathi_parser.parse_args(cmd)
