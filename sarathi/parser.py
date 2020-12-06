@@ -53,6 +53,9 @@ til_find_parser.add_argument(
 til_find_parser.add_argument(
     "-d", "--domain", help="List help from this domain only")
 til_find_parser.add_argument(
+    "keywords", nargs="+"
+)
+til_find_parser.add_argument(
     "-l", "--limit", default=5, type=int, help="Limit of the TILs to print")
 til_find_parser.add_argument(
     "--date", type=str, help="Fuzzy datetime filter; supports `[since|before|after] N [days|months|weeks|years]`")
