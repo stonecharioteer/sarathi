@@ -73,11 +73,6 @@ def test_til_parser_add_multicategory_multiurl():
             [
                 "til", "find", "invalid"
             ]
-        ),
-        (
-            [
-                "til", "add", "-u", "https://localhost"
-            ]
         )
     ]
 )
