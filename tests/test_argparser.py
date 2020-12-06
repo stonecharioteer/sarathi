@@ -55,8 +55,15 @@ def test_til_parser_add_multicategory_multiurl():
     "cmd",
     [
         (
-            ["invalid-subcommand"]
+            ["invalid-command"]
         ),
+        (
+            ["invalid-command", "invalid-subcommand"]
+        ),
+        (
+            [
+                "til"
+            ]),
         (
             ["til", "invalid"]
         ),
@@ -77,7 +84,9 @@ def test_til_parser_add_multicategory_multiurl():
     ]
 )
 def test_parse_invalid_command(cmd):
-    """Tests what happens when the arg parser gets an invalid command"""
+    """Tests what happens when the arg parser
+    gets an invalid command"""
     print(f"{cmd=}")
+
     with pytest.raises(argparse.ArgumentError):
         _ = sarathi_parser.parse_args(cmd)

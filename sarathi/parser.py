@@ -20,13 +20,15 @@ sarathi_parser = Parser(
 sarathi_subparsers = sarathi_parser.add_subparsers(
     required=True,
     dest="command",
+    parser_class=Parser,
     help="command help goes here")
 
 til_parser = sarathi_subparsers.add_parser(
     "til", exit_on_error=False, help="TIL command")
 
 til_subparsers = til_parser.add_subparsers(
-    dest="subcommand", required=True, help="TIL sub-commands")
+    dest="subcommand", required=True,
+    help="TIL sub-commands", parser_class=Parser)
 
 til_add_parser = til_subparsers.add_parser(
     "add",
