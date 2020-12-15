@@ -254,7 +254,7 @@ def get_url_title(url):
         if soup.title is None:
             sys.stderr.write(f"`{url}` has no title.")
             return None
-        return soup.title.string
+        return soup.title.string.replace("\n", " ").replace("  ", " ").strip()
 
 
 def fix_urls():
