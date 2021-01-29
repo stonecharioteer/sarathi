@@ -20,7 +20,6 @@ COPY --chown=sarathi requirements.txt /home/sarathi/app/
 
 # ENV DISCORD_TOKEN
 # ENV DISCORD_GUILD
-ENV DISCORD_TOKEN="NzgxMTcwMjgyMjk1MTk3NzM2.X75vhA.8uG2VjpbGyPx8-nhI92koh7dTOk"
 ENV DISCORD_GUILD="stonecharioteer's server"
 ENV TIL_JSON_PATH="/home/sarathi/blog/assets/til.json"
 ENV TIL_JINJA_TEMPLATE_PATH="/home/sarathi/blog/assets/til.jinja2"
