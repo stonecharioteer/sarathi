@@ -12,7 +12,7 @@ def test_til_parser_add_exists():
 
 def test_til_parser_find_exists():
     """Tests the TIL Parser"""
-    til_string = ["til", "find"]
+    til_string = ["til", "find", "test"]
     namespace = sarathi_parser.parse_args(til_string)
     assert namespace.command == "til", "The `til` command doesn't exist!"
     assert namespace.subcommand == "find", "The `til find` subcommand doesn't exist."
@@ -67,19 +67,11 @@ def test_til_parser_add_multicategory_multiurl():
             ["til", "invalid"]
         ),
         (
-            ["til", "add"]
-        ),
-        (
             ["til", "add", "invalid"]
         ),
         (
             ["til", "find"]
         ),
-        (
-            [
-                "til", "find", "invalid"
-            ]
-        )
     ]
 )
 def test_parse_invalid_command(cmd):
