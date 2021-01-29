@@ -275,6 +275,10 @@ def write_til_json(til_json):
         ).format(
             til_path, blog_path))
     with cwd(blog_path):
+        output = subprocess.Popen(
+            ["git", "pull"]
+        )
+        stdout, stderr = output.communicate()
         commit_message = "TIL updated by sarathi-bot."
         output = subprocess.Popen(
             ["git", "commit", "-m", commit_message, "assets/til.json"])
@@ -328,6 +332,10 @@ def generate_til_page():
         ).format(
             til_file, blog_path))
     with cwd(blog_path):
+        output = subprocess.Popen(
+            ["git", "pull"]
+        )
+        stdout, stderr = output.communicate()
         commit_message = "TIL page updated by sarathi-bot."
         output = subprocess.Popen(
             ["git", "commit", "-m", commit_message, "pages/til.md"])
