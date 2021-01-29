@@ -16,3 +16,5 @@ spec:
       - name: sarathi
         image: stonecharioteer/sarathi:latest
         imagePullPolicy: Always
+      imagePullSecrets:
+        - name: regcred
