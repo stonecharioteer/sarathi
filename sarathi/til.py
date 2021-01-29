@@ -82,6 +82,7 @@ def add_query(arguments, **kwargs):
 
     }
     """
+    testing = kwargs.get("testing")
     raw_message = kwargs.get("message")
     # TODO: Get attachment from here and use it.
 
@@ -165,8 +166,10 @@ def add_query(arguments, **kwargs):
         til_json.append(til_entry)
 
     til_json = sorted(til_json, key=lambda x: x["added_on"], reverse=True)
-    write_til_json(til_json)
-    generate_til_page()
+    if not testing:
+        write_til_json(til_json)
+        generate_til_page()
+        return f"Test successful. {message=}"
     return message
 
 
@@ -216,7 +219,7 @@ def find_query(arguments, **kwargs):
             for keyword in keywords
         ])
 
-        relevant = has_matching_keyword or has_matching_domain or has_matching_category:
+        relevant = has_matching_keyword or has_matching_domain or has_matching_category
         if relevant:
             relevant_tils.append(til)
     # TODO: Limit to required number of TILs and return the reponse.

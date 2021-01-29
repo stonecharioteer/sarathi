@@ -13,6 +13,7 @@ load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD = os.getenv("DISCORD_GUILD")
+TESTING = os.getenv("TESTING")
 
 bot = commands.Bot(
     command_prefix="/",
@@ -48,6 +49,12 @@ async def on_member_join(member):
 @is_owner()
 async def today_i_learned(ctx, *query):
     """Today I Learned"""
+    channel_name = ctx.channel.name
+    if TESTING:
+        if channel_name != "test":
+            await ctx.send(
+                f"Warning: You're running `sarathi` with {TESTING=}. Please message on the `test` channel.")
+            return
     await ctx.send("Processing...")
     command = ["til"]+list(query)
     try:
@@ -59,7 +66,7 @@ async def today_i_learned(ctx, *query):
     except Exception as e:
         raise Exception("`{}` failed unexpectedly.".format(e)) from e
     else:
-        response = til.process_query(arguments, message=ctx.message)
+        response = til.process_query(arguments, message=ctx.message, testing=TESTING)
         if isinstance(response, str):
             await ctx.send(response)
         elif isinstance(response, list):

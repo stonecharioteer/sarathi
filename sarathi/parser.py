@@ -1,5 +1,12 @@
 """Parser module
 Used to parse the arguments from the discord message.
+
+
+This is similar to a CLI wherein sarathi would be the root command.
+
+sarathi til add -m "some message" -c "category-1" -c "category-2" -u "https://url.example"
+NOTE:
+sarathi til add
 """
 import argparse
 
@@ -37,7 +44,6 @@ til_subparsers = til_parser.add_subparsers(
 til_add_parser = til_subparsers.add_parser(
     "add",
     help="add command")
-
 til_add_parser.add_argument("-m", "--message", dest="message",
                             help="Text to be displayed when URL is provided")
 til_add_parser.add_argument(
