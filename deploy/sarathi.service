@@ -8,4 +8,4 @@ ExecStart=<absolute path to python> -u <absolute path to sarathi.py>
 Restart=on-failures
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
