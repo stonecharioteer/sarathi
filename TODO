@@ -1,9 +1,13 @@
 
 Features:
   Cleanup:
-    ☐ @created(20-12-06 15:36) Print detailed help on invalid output.
-    ☐ @created(20-12-06 15:36) Use argparse's generated help instead of hardcoded help.
-    ☐ @created(20-12-05 01:09) Use argparse to parse arguments from each command.
+    ✔ @created(20-12-06 15:36) Print detailed help on invalid output. @done(21-01-29 22:05)
+    ✔ @created(20-12-06 15:36) Use argparse's generated help instead of hardcoded help. @done(21-01-29 22:05)
+    ✔ @created(20-12-05 01:09) Use argparse to parse arguments from each command. @done(21-01-29 22:05)
+    ☐ @created(21-01-29 22:05) Restructure the til.json file to follow the new structure.
+    ☐ @created(21-01-29 22:05) Add logging. Stream logs to a `logs` channel.
+      ☐ @created(21-01-29 22:06) Add discord logging handler.
+    ☐ @created(21-01-29 22:08) Move secrets to kubernetes instead of the yaml file.
   TIL:
     ☐ @created(20-11-28 22:26) Links
       ✔ @created(20-11-28 22:34) When given a link, record into the til-links.json file and also record the date in which it is encountered. @done(20-11-29 03:00)
