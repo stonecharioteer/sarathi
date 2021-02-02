@@ -154,6 +154,11 @@ def find_query(*args):
 
 def get_til():
     """Returns the TIL JSON"""
+
+    blog_path = pathlib.Path(os.getenv("BLOG_PATH"))
+    with cwd(blog_path):
+        output = subprocess.Popen(["git", "pull"])
+        stdout, stderr = output.communicate()
     til_path = os.getenv("TIL_JSON_PATH")
     with open(til_path) as f:
         til_json = json.load(f)
