@@ -17,7 +17,7 @@ import bs4
 import discord
 import urllib3
 
-from sarathi.exceptions import ServerError, InvalidTILError
+from exceptions import ServerError, InvalidTILError
 
 help_text = textwrap.dedent(
     f"""A command to help manage the today-i-learned database of my blog.

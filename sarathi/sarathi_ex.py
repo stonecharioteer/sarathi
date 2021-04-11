@@ -6,13 +6,14 @@ from discord.ext import commands
 from discord.ext.commands import is_owner
 from dotenv import load_dotenv
 
-from sarathi import til
-from sarathi.parser import ArgParseError, sarathi_parser
+import til
+from parser import ArgParseError, sarathi_parser
 
 load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD = os.getenv("DISCORD_GUILD")
+FORTUNE = os.getenv("FORTUNE_PATH")
 TESTING = os.getenv("TESTING")
 
 bot = commands.Bot(
@@ -86,6 +87,22 @@ async def on_error(event, *args, **kwargs):
             raise Exception(
                 "Error encountered: {} x {} x {}".format(event, args, kwargs))
 
+
+
+@bot.command(name="fortune")
+async def fortune(ctx,*args):
+
+    import subprocess
+    import fortune
+    
+    params = ['fortune']
+    for i in args:
+        params.append(i)
+    params.append(FORTUNE)
+
+    output = subprocess.Popen(params,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    stdout, stderr = output.communicate()
+    await ctx.send(stdout)
 
 def main():
     bot.run(TOKEN)
