@@ -46,6 +46,7 @@ help_text = textwrap.dedent(
 )
 
 
+
 def process_query(arguments, **kwargs) -> str:
     """Processes a til query"""
     # arguments is from argparse.
