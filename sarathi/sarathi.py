@@ -89,7 +89,7 @@ async def on_error(event, *args, **kwargs):
                 "Error encountered: {} x {} x {}".format(event, args, kwargs))
 
 @bot.command(name="fortune",help=fortune.help_fortune)
-""" This command prints your fortune for that day """
+""" This command prints your fortune for that day  """
 
 async def fortune(ctx,*args):
 

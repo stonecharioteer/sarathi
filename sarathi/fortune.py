@@ -15,7 +15,7 @@ def run_fortune(args=None):
     except subprocess.CalledProcessError as e:
         return e.output
 
-
+import textwrap
 help_fortune = textwrap.dedent(
     """ A command that displays a pseudorandom message from a database of quotations.
          Usage: fortune [-acefilsw] [-n length] [ -m pattern] [[n%] file/dir/all]
@@ -51,11 +51,7 @@ help_fortune = textwrap.dedent(
 
     
         """
-<<<<<<< HEAD
 )
 
 
 
-=======
-)
->>>>>>> b71d134db0726b92bd7d1ba1ed024e75ec89b1c2
