@@ -7,7 +7,9 @@ from discord.ext.commands import is_owner
 from dotenv import load_dotenv
 
 from sarathi import til
+from sarathi import fortune
 from sarathi.parser import ArgParseError, sarathi_parser
+from sarathi.fortune import run_fortune
 
 load_dotenv()
 
@@ -85,6 +87,15 @@ async def on_error(event, *args, **kwargs):
         else:
             raise Exception(
                 "Error encountered: {} x {} x {}".format(event, args, kwargs))
+
+@bot.command(name="fortune",help=fortune.help_fortune)
+""" This command prints your fortune for that day  """
+
+async def fortune(ctx,*args):
+
+    arg_list = " ".join(list(args))
+    fortunes = til.run_fortune(arg_list)
+    await ctx.send(fortunes)
 
 
 def main():
